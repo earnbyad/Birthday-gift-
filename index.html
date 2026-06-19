@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অপেক্ষা... ⏳</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f031d 0%, #24043b 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px 0;
+        }
+
+        /* Floating Elements Layer */
+        .celebration-layer {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .balloon {
+            position: absolute;
+            font-size: 40px;
+            bottom: -60px;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-105vh) scale(1.3); opacity: 0; }
+        }
+
+        /* Main Container */
+        .wish-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 45px 35px;
+            border-radius: 30px;
+            width: 500px;
+            max-width: 95%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        /* Profile Frame */
+        .avatar-area {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            border: 4px solid #ff4081;
+            padding: 6px;
+            box-shadow: 0 0 25px rgba(255, 64, 129, 0.6);
+        }
+
+        .avatar-area img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 38px;
+            color: #ff4081;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 64, 129, 0.4);
+            display: none;
+        }
+
+        /* Waiting Title */
+        #waitingTitle {
+            font-size: 28px;
+            color: #ffb74d;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        /* Countdown Style */
+        .countdown-container {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 10px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .countdown-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .countdown-time {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6e40;
+            display: block;
+            text-shadow: 0 0 10px rgba(255, 110, 64, 0.3);
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            color: #ddd;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        /* Audio Interaction Prompt Screen */
+        .audio-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 3, 29, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .audio-btn {
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.6);
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .audio-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* New Realistic 🎂 Emoji-Style Cake Container */
+        .cake-container {
+            display: none;
+            position: relative;
+            width: 160px;
+            height: 140px;
+            margin: 20px auto;
+        }
+
+        /* কেকের মূল দুই ভাগ */
+        .cake-left, .cake-right {
+            position: absolute;
+            bottom: 0;
+            width: 80px;
+            height: 80px;
+            background: #fff; /* হোয়াইট ক্রিম কেক */
+            overflow: visible;
+            transition: transform 1.5s ease-in-out;
+            z-index: 2;
+        }
+
+        .cake-left {
+            left: 0;
+            border-radius: 15px 0 0 8px;
+            box-shadow: inset -5px -10px 0 rgba(0,0,0,0.05), -2px 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .cake-right {
+            right: 0;
+            border-radius: 0 15px 8px 0;
+            box-shadow: inset 5px -10px 0 rgba(0,0,0,0.05), 2px 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* কেকের ভেতরের স্ট্রবেরি ক্রিম লেয়ার (ক্রস সেকশন কালার) */
+        .cake-left::after, .cake-right::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 30px;
+            width: 100%;
+            height: 12px;
+            background: #ff4081; /* স্ট্রবেরি লেয়ার */
+        }
+
+        /* কেকের ওপরের লাল স্ট্রবেরি টপিংস */
+        .strawberry-top {
+            position: absolute;
+            top: -12px;
+            width: 16px;
+            height: 16px;
+            background: #d32f2f;
+            border-radius: 50% 50% 20% 20%;
+            z-index: 4;
+            transition: transform 1.5s ease-in-out;
+        }
+        .s1 { left: 15px; }
+        .s2 { left: 45px; }
+        .s3 { right: 45px; }
+        .s4 { right: 15px; }
+
+        /* মোমবাতিগুলো (ইমোজি কেকের মতো মাল্টিকালার) */
+        .candles-group {
+            position: absolute;
+            bottom: 78px;
+            width: 100%;
+            height: 30px;
+            left: 0;
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        .mini-candle {
+            position: absolute;
+            bottom: 0;
+            width: 5px;
+            height: 22px;
+            border-radius: 2px;
+        }
+        .c1 { left: 30px; background: #ffeb3b; }
+        .c2 { left: 55px; background: #2196f3; }
+        .c3 { right: 55px; background: #9c27b0; }
+        .c4 { right: 30px; background: #4caf50; }
+
+        .mini-flame {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 8px;
+            background: #ffb74d;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 6px #ff9800;
+            animation: burn 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes burn {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.1) rotate(3deg); }
+        }
+
+        /* ছুরি (Knife) অ্যানিমেশন */
+        .knife {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            font-size: 32px;
+            z-index: 10;
+            opacity: 0;
+            transition: all 1s ease-in-out;
+        }
+
+        /* অ্যানিমেশন ট্রিগার ইফেক্টস */
+        .cut-cake .knife {
+            animation: cutAction 2s ease-in-out forwards;
+        }
+
+        .cut-cake .cake-left {
+            transform: translateX(-25px) rotate(-8deg);
+        }
+
+        .cut-cake .cake-right {
+            transform: translateX(25px) rotate(8deg);
+        }
+
+        .cut-cake .s1, .cut-cake .s2 { transform: translateX(-25px) rotate(-8deg); }
+        .cut-cake .s3, .cut-cake .s4 { transform: translateX(25px) rotate(8deg); }
+
+        .cut-cake .candles-group {
+            opacity: 0; /* কাটার পর মোমবাতিগুলো নিভে যাবে */
+        }
+
+        @keyframes cutAction {
+            0% { top: -50px; opacity: 0; transform: translateX(-50%) rotate(45deg); }
+            30% { top: 10px; opacity: 1; transform: translateX(-50%) rotate(0deg); }
+            70% { top: 60px; opacity: 1; transform: translateX(-50%) rotate(0deg); }
+            100% { top: 110px; opacity: 0; transform: translateX(-50%) rotate(-45deg); }
+        }
+
+        /* Typewriter Wish Text */
+        .typed-text {
+            font-size: 26px;
+            min-height: 80px;
+            line-height: 1.6;
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* Surprise Panel */
+        .surprise-panel {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 64, 129, 0.15);
+            border: 1px solid rgba(255, 64, 129, 0.3);
+            border-radius: 15px;
+            font-size: 22px;
+            line-height: 1.6;
+            color: #fff;
+            animation: scaleUp 0.6s ease-out forwards;
+        }
+
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- মিউজিক প্লে করার জন্য ইউজার গাইডেন্স ওভারলে স্ক্রিন -->
+    <div class="audio-overlay" id="audioPrompt">
+        <h2 style="color: #ffb74d; margin-bottom: 10px; font-size: 24px;">নাসরিনের জন্মদিনের সারপ্রাইজ স্পেশাল! 🎁</h2>
+        <p style="font-size: 16px; color: #ddd;">মিউজিক সহ সম্পূর্ণ অভিজ্ঞতা পেতে নিচের বাটনে চাপ দিন</p>
+        <button class="audio-btn" onclick="unlockAudio()">সারপ্রাইজটি দেখুন 💖</button>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="Beautiful Happy Birthday song 🎂 lets Celebrate Ultimate Birthday song 🎉🥳(MP3_160K).mp3" type="audio/mp3">
+    </audio>
+
+    <div class="celebration-layer" id="celebrationBg"></div>
+
+    <div class="wish-box">
+        <div class="avatar-area">
+            <img src="649747.jpg" alt="Birthday Special">
+        </div>
+        
+        <h2 id="waitingTitle">নাসরিন, তোমার জন্য একটি বিশেষ সারপ্রাইজ অপেক্ষা করছে... ⏳</h2>
+        <h1 id="greetingTitle">শুভ জন্মদিন নাসরিন আক্তার 🎂</h1>
+
+        <div class="countdown-container" id="countdownBox">
+            <div class="countdown-item">
+                <span class="countdown-time" id="days">00</span>
+                <span class="countdown-label">দিন</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-time" id="hours">00</span>
+                <span class="countdown-label">ঘণ্টা</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-time" id="minutes">00</span>
+                <span class="countdown-label">মিনিট</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-time" id="seconds">00</span>
+                <span class="countdown-label">সেকেন্ড</span>
+            </div>
+        </div>
+
+        <!-- ইমোজি কেকের স্টাইলে ডাইনামিক থ্রি-ডি কাটিং কেক -->
+        <div class="cake-container" id="cakeBox">
+            <div class="knife">🔪</div>
+            
+            <!-- মোমবাতি গ্রুপ -->
+            <div class="candles-group">
+                <div class="mini-candle c1"><div class="mini-flame"></div></div>
+                <div class="mini-candle c2"><div class="mini-flame"></div></div>
+                <div class="mini-candle c3"><div class="mini-flame"></div></div>
+                <div class="mini-candle c4"><div class="mini-flame"></div></div>
+            </div>
+
+            <!-- স্ট্রবেরি টপিংস -->
+            <div class="strawberry-top s1"></div>
+            <div class="strawberry-top s2"></div>
+            <div class="strawberry-top s3"></div>
+            <div class="strawberry-top s4"></div>
+
+            <!-- কেকের বডি পার্টস -->
+            <div class="cake-left"></div>
+            <div class="cake-right"></div>
+        </div>
+        
+        <div class="typed-text" id="wishText"></div>
+        
+        <div class="surprise-panel" id="secretNote">
+            "আজকের এই বিশেষ দিনে যৌথ জীবনের পথচলায় সৃষ্টিকর্তার কাছে একটাই প্রার্থনা, তোমার জীবন যেন সবসময় সুখ আর আনন্দে ভরে থাকে। শুভ জন্মদিন, প্রিয়! 💖"
+        </div>
+    </div>
+
+    <script>
+        // টেস্টিং মোড: রান করার ১০ সেকেন্ড পরেই সারপ্রাইজ শুরু হবে
+        const targetDate = new Date().getTime() + 10000; 
+
+        /* // আসল জন্মদিনের দিন লাইভ করার সময় নিচের এই লাইনটি ব্যবহার করবেন:
+        const targetDate = new Date(2026, 6, 3, 0, 0, 0).getTime(); // উদাহরণ: ৩ জুলাই রাত ১২:০০ টা
+        */
+
+        let birthdayStarted = false;
+        let balloonInterval = null;
+        const music = document.getElementById("bgMusic");
+
+        function unlockAudio() {
+            music.play().then(() => {
+                if (!birthdayStarted) {
+                    music.pause();
+                }
+                document.getElementById("audioPrompt").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("audioPrompt").style.display = "none";
+                }, 500);
+            }).catch(e => {
+                console.log("Audio activation error:", e);
+                document.getElementById("audioPrompt").style.display = "none";
+            });
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference <= 0) {
+                clearInterval(countdownInterval);
+                if (!birthdayStarted) {
+                    startBirthdayCelebration();
+                }
+                return;
+            }
+
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = d < 10 ? "0" + d : d;
+            document.getElementById("hours").innerText = h < 10 ? "0" + h : h;
+            document.getElementById("minutes").innerText = m < 10 ? "0" + m : m;
+            document.getElementById("seconds").innerText = s < 10 ? "0" + s : s;
+        }
+        const countdownInterval = setInterval(updateCountdown, 1000);
+
+        function startBirthdayCelebration() {
+            birthdayStarted = true;
+            document.title = "শুভ জন্মদিন নাসরিন! 🎂";
+
+            document.getElementById("countdownBox").style.display = "none";
+            document.getElementById("waitingTitle").style.display = "none";
+
+            document.getElementById("greetingTitle").style.display = "block";
+            
+            const cakeBox = document.getElementById("cakeBox");
+            cakeBox.style.display = "block";
+            
+            // কেক স্ক্রিনে প্রদর্শনের ১.২ সেকেন্ড পর স্মুথলি ছুরি দিয়ে কাটার অ্যানিমেশন চালু হবে
+            setTimeout(() => {
+                cakeBox.classList.add("cut-cake");
+            }, 1200);
+
+            document.getElementById("secretNote").style.display = "block";
+
+            music.play().catch(err => console.log("Autoplay forced successfully."));
+
+            typeWriter();
+            balloonInterval = setInterval(createBalloon, 600);
+            
+            for (let i = 0; i < 25; i++) {
+                setTimeout(createBalloon, i * 100);
+            }
+        }
+
+        const greetings = [
+            "নাসরিন, পৃথিবীর সবচেয়ে স্পেশাল মানুষটাকে জন্মদিনের শুভেচ্ছা...",
+            "তোমার প্রতিটি দিন কাটুক হাসিতে আর ভালোবাসায়...",
+            "তুমি আমার জীবনের সেরা উপহার! ❤️"
+        ];
+
+        let textIndex = 0;
+        let charIndex = 0;
+        const speed = 90; 
+        const textContainer = document.getElementById("wishText");
+
+        function typeWriter() {
+            if (!textContainer) return;
+            if (charIndex < greetings[textIndex].length) {
+                textContainer.innerHTML += greetings[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, speed);
+            } else {
+                setTimeout(eraseText, 2500);
+            }
+        }
+
+        function eraseText() {
+            if (charIndex > 0) {
+                textContainer.innerHTML = greetings[textIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(eraseText, 40);
+            } else {
+                textIndex = (textIndex + 1) % greetings.length;
+                setTimeout(typeWriter, 500);
+            }
+        }
+
+        function createBalloon() {
+            const container = document.getElementById("celebrationBg");
+            if (!container) return;
+
+            const balloon = document.createElement("div");
+            balloon.classList.add("balloon");
+            
+            const emojis = ['🎈', '🎉', '✨', '💖', '🎁', '💝', '⭐'];
+            balloon.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            balloon.style.left = Math.random() * 100 + "vw";
+            balloon.style.animationDuration = (Math.random() * 2 + 4) + "s";
+            balloon.style.fontSize = (Math.random() * 25 + 25) + "px";
+
+            container.appendChild(balloon);
+
+            setTimeout(() => {
+                balloon.remove();
+            }, 6500);
+        }
+
+        window.onload = function() {
+            updateCountdown();
+        };
+    </script>
+</body>
+</html>
